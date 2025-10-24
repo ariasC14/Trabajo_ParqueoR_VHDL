@@ -1,0 +1,14 @@
+Analysis & Synthesis Status : Successful - Thu Oct 23 17:31:38 2025
+Quartus II 64-Bit Version : 13.1.0 Build 162 10/23/2013 SJ Web Edition
+Revision Name : contador_monedas
+Top-level Entity Name : contador_monedas
+Family : Cyclone III
+Total logic elements : 2,407
+    Total combinational functions : 2,407
+    Dedicated logic registers : 55
+Total registers : 55
+Total pins : 15
+Total virtual pins : 0
+Total memory bits : 0
+Embedded Multiplier 9-bit elements : 0
+Total PLLs : 0

@@ -1,0 +1,75 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity parqueadero_top is
+    Port (
+        clk           : in  std_logic;
+        reset         : in  std_logic;
+
+        boton         : in  std_logic;              -- entrada vehículo (decrementa plazas)
+        btn_bot       : in  std_logic;              -- liberar plaza (incrementa plazas)
+        sensor_in     : in  std_logic;              -- señal sensor movimiento Flying Fish
+
+        control_puerta : in  std_logic;             -- control servomotor puerta
+        enable_motor   : in  std_logic;             -- habilitar motor paso a paso
+        dir_motor     : in  std_logic;             -- dirección motor paso a paso
+
+        seg          : out std_logic_vector(6 downto 0);  -- display 7 segmentos
+        led_full     : out std_logic;              -- LED parqueadero lleno (LEDG0)
+        led_mov      : out std_logic;              -- LED sensor movimiento (LEDG1)
+
+        servo_pwm    : out std_logic;               -- salida servomotor PWM
+        mot_A1A      : out std_logic;               -- motor bobina A1A
+        mot_A1B      : out std_logic;               -- motor bobina A1B
+        mot_B1A      : out std_logic;               -- motor bobina B1A
+        mot_B1B      : out std_logic                -- motor bobina B1B
+    );
+end parqueadero_top;
+
+architecture Behavioral of parqueadero_top is
+
+begin
+
+    -- Instancia contador de plazas
+    contador_inst: entity work.contador_parqueadero
+        port map(
+            clk => clk,
+            reset => reset,
+            boton => boton,
+            btn_bot => btn_bot,
+            seg => seg,
+            led_full => led_full
+        );
+
+    -- Instancia servomotor
+    servomotor_inst: entity work.servomotor
+        port map(
+            clk => clk,
+            control => control_puerta,
+            servo => servo_pwm
+        );
+
+    -- Instancia motor paso a paso
+    motor_paso_inst: entity work.motor_28byj48_control
+        port map(
+            clk => clk,
+            reset => reset,
+            enable => enable_motor,
+            dir => dir_motor,
+            A1A => mot_A1A,
+            A1B => mot_A1B,
+            B1A => mot_B1A,
+            B1B => mot_B1B
+        );
+
+    -- Instancia sensor de movimiento
+    sensor_mov_inst: entity work.sensor_movimiento
+        port map(
+            clk => clk,
+            reset => reset,
+            sensor_in => sensor_in,
+            led_mov => led_mov
+        );
+
+end Behavioral;

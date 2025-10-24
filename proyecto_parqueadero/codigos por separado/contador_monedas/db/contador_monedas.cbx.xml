@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<LOG_ROOT>
+	<PROJECT NAME="contador_monedas">
+		<CBX_INST_ENTRY INSTANCE_NAME="|contador_monedas|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[1]" CBX_FILE_NAME="add_sub_dfh.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|contador_monedas|lpm_mult:Mult1|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[0]" CBX_FILE_NAME="add_sub_efh.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|contador_monedas|lpm_divide:Div1" CBX_FILE_NAME="lpm_divide_phm.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|contador_monedas|lpm_divide:Mod0" CBX_FILE_NAME="lpm_divide_9bm.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|contador_monedas|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[0]" CBX_FILE_NAME="add_sub_dfh.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|contador_monedas|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add|lpm_add_sub:adder[0]" CBX_FILE_NAME="add_sub_hfh.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|contador_monedas|lpm_mult:Mult1|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[1]" CBX_FILE_NAME="add_sub_efh.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|contador_monedas|lpm_divide:Div0" CBX_FILE_NAME="lpm_divide_3jm.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|contador_monedas|lpm_mult:Mult1|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add|lpm_add_sub:adder[0]" CBX_FILE_NAME="add_sub_ifh.tdf"/>
+	</PROJECT>
+</LOG_ROOT>

@@ -1,0 +1,56 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity contador_parqueadero is
+    Port (
+        clk       : in  std_logic;            -- Reloj del sistema
+        reset     : in  std_logic;            -- Reset
+        boton    : in  std_logic;            -- Botón de entrada de vehículo
+        seg     : out  std_logic_vector(6 downto 0); -- Display de 7 segmentos
+        btn_bot : in std_logic -- botón de entrada
+    );
+end contador_parqueadero;
+
+architecture Behavioral of contador_parqueadero is
+
+    signal plazas_disponibles : integer range 0 to 6 := 6; -- plazas disponibles inicial
+    signal boton_prev : std_logic := '0'; -- para detectar flanco de subida
+    signal muestra : std_logic_vector(6 downto 0); -- para mostrar en el display
+
+    -- Mapeo a segmentos del display para los números 0-6
+    type segmentos_array is array (0 to 6) of std_logic_vector(6 downto 0);
+    constant display_map : segmentos_array := (
+        "0111111", -- 0
+        "0000110", -- 1
+        "1011011", -- 2
+        "1001111", -- 3
+        "1100110", -- 4
+        "1101101", -- 5
+        "1111101"  -- 6
+    );
+
+begin
+
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            plazas_disponibles <= 6;
+            boton_prev <= '0';
+        elsif rising_edge(clk) then
+            -- Detectar flanco de subida en el botón
+            if (boton = '1') and (boton_prev = '0') then
+                if plazas_disponibles > 0 then
+                    plazas_disponibles <= plazas_disponibles - 1;
+                end if;
+            end if;
+            boton_prev <= boton;
+        end if;
+    end process;
+
+    -- Mapear número a los segmentos
+    muestra <= display_map(plazas_disponibles);
+
+    seg <= muestra;
+
+end Behavioral;

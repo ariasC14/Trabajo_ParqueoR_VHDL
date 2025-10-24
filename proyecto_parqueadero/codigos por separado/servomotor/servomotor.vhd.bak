@@ -1,0 +1,79 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity servo_sw_control is
+    Port (
+        clk     : in  STD_LOGIC;     -- Reloj del sistema (50 MHz)
+        reset   : in  STD_LOGIC;     -- Botón de reinicio
+        sw0     : in  STD_LOGIC;     -- Interruptor para activar el servo
+        pwm_out : out STD_LOGIC      -- Salida PWM hacia el servo
+    );
+end servo_sw_control;
+
+architecture Behavioral of servo_sw_control is
+
+    constant CLK_FREQ   : integer := 50000000; -- 50 MHz
+    constant PWM_PERIOD : integer := 20000000; -- 20 ms en ns
+    constant T0_MS      : integer := 1000000;  -- 1.0 ms (posición cerrada)
+    constant T90_MS     : integer := 1500000;  -- 1.5 ms (posición abierta)
+
+    signal counter      : integer range 0 to (CLK_FREQ / 50) := 0;
+    signal pwm_signal   : STD_LOGIC := '0';
+    signal position90   : boolean := false;
+    signal timer_10s    : integer range 0 to (CLK_FREQ * 10) := 0;
+
+begin
+
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            counter <= 0;
+            pwm_signal <= '0';
+            position90 <= false;
+            timer_10s <= 0;
+        elsif rising_edge(clk) then
+
+            if sw0 = '1' then  -- Activación con el interruptor SW0
+
+                -- Contador del periodo PWM (20 ms)
+                if counter < (CLK_FREQ / 50) then
+                    counter <= counter + 1;
+                else
+                    counter <= 0;
+                end if;
+
+                -- Generar PWM según posición
+                if (position90 = true) then
+                    if counter < (T90_MS * CLK_FREQ / 1000000000) then
+                        pwm_signal <= '1';
+                    else
+                        pwm_signal <= '0';
+                    end if;
+                else
+                    if counter < (T0_MS * CLK_FREQ / 1000000000) then
+                        pwm_signal <= '1';
+                    else
+                        pwm_signal <= '0';
+                    end if;
+                end if;
+
+                -- Temporizador de 10 segundos
+                if timer_10s < (CLK_FREQ * 10) then
+                    timer_10s <= timer_10s + 1;
+                else
+                    timer_10s <= 0;
+                    position90 <= not position90;  -- alterna entre abierto y cerrado
+                end if;
+
+            else
+                pwm_signal <= '0';    -- Servo apagado cuando SW0 está en 0
+                timer_10s <= 0;
+                position90 <= false;
+            end if;
+        end if;
+    end process;
+
+    pwm_out <= pwm_signal;
+
+end Behavioral;

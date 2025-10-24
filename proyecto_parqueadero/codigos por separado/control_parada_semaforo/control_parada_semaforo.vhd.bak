@@ -1,0 +1,123 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity control_parada_semaforo is
+    Port (
+        clk             : in  std_logic;                -- Reloj principal 50 MHz
+        reset           : in  std_logic;
+        emergencia_btn  : in  std_logic;                -- Botón parada emergencia (activo alto)
+        segura_btn      : in  std_logic;                -- Botón parada segura (activo alto)
+        parqueo_lleno   : in  std_logic;                -- Señal parqueadero lleno (1=lleno)
+        espacios_disp   : in  integer range 0 to 6;     -- Espacios disponibles
+
+        parada_total    : out std_logic;                 -- Señal para parar motor instantáneamente
+        parada_progresiva : out std_logic;               -- Señal para parada progresiva
+
+        sem_rojo        : out std_logic;
+        sem_amarillo    : out std_logic;
+        sem_verde       : out std_logic
+    );
+end control_parada_semaforo;
+
+architecture Behavioral of control_parada_semaforo is
+
+    signal clk_1hz        : std_logic := '0';  -- reloj divisor 1Hz para titilar rojo
+    signal cnt_div_50M    : integer range 0 to 24999999 := 0;
+
+    signal cnt_titilar    : integer range 0 to 1 := 0;
+    signal rojo_encendido : std_logic := '0';
+
+    signal prog_stop_cnt  : integer range 0 to 500000000 := 0;  -- contador para 10 seg a 50MHz
+    signal parando        : std_logic := '0';
+
+begin
+
+    -- Divisor de frecuencia para 1Hz
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            cnt_div_50M <= 0;
+            clk_1hz <= '0';
+        elsif rising_edge(clk) then
+            if cnt_div_50M = 24999999 then
+                cnt_div_50M <= 0;
+                clk_1hz <= not clk_1hz;
+            else
+                cnt_div_50M <= cnt_div_50M + 1;
+            end if;
+        end if;
+    end process;
+
+    -- Registro para titilar rojo cada 2 segundos (toggle a 0.5Hz)
+    process(clk_1hz, reset)
+    begin
+        if reset = '1' then
+            cnt_titilar <= 0;
+            rojo_encendido <= '0';
+        elsif rising_edge(clk_1hz) then
+            if cnt_titilar = 1 then
+                cnt_titilar <= 0;
+                rojo_encendido <= not rojo_encendido;
+            else
+                cnt_titilar <= cnt_titilar + 1;
+            end if;
+        end if;
+    end process;
+
+    -- Parada de emergencia inmediata y parada segura progresiva
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            parada_total <= '0';
+            parada_progresiva <= '0';
+            prog_stop_cnt <= 0;
+            parando <= '0';
+        elsif rising_edge(clk) then
+
+            -- Parada de emergencia instantanea
+            if emergencia_btn = '1' then
+                parada_total <= '1';
+                parada_progresiva <= '0';
+                parando <= '0';
+                prog_stop_cnt <= 0;
+
+            -- Parada segura inicia conteo y espera para paro completo
+            elsif segura_btn = '1' then
+                parada_total <= '0';
+                parada_progresiva <= '1';
+                parando <= '1';
+
+                if prog_stop_cnt < 500000000 then
+                    prog_stop_cnt <= prog_stop_cnt + 1;
+                else
+                    -- Fin de conteo, parada total segura completada
+                    parada_total <= '1';
+                    parada_progresiva <= '0';
+                    parando <= '0';
+                    prog_stop_cnt <= 0;
+                end if;
+
+            else
+                -- Si no hay ninguna parada
+                parada_total <= '0';
+                parada_progresiva <= '0';
+                prog_stop_cnt <= 0;
+                parando <= '0';
+            end if;
+        end if;
+    end process;
+
+    -- Semáforo rojo: titila si parqueadero lleno y no emergencia,
+    -- permanece encendido si parada emergencia activa
+    sem_rojo <= rojo_encendido when (parqueo_lleno = '1' and emergencia_btn = '0') else
+                '1' when emergencia_btn = '1' else
+                '0';
+
+    -- Semáforo amarillo activo si parada segura activa
+    sem_amarillo <= '1' when segura_btn = '1' else '0';
+
+    -- Semáforo verde activo si parqueadero con espacios disponibles y no hay parada
+    sem_verde <= '1' when (espacios_disp > 0 and emergencia_btn = '0' and segura_btn = '0') else '0';
+
+end Behavioral;

@@ -1,0 +1,80 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity motor_28byj48_control is
+    Port (
+        clk     : in  STD_LOGIC;   -- Reloj del sistema
+        reset   : in  STD_LOGIC;   -- Reset asíncrono
+        enable  : in  STD_LOGIC;   -- Habilitar motor
+        dir     : in  STD_LOGIC;   -- Dirección (0=horario, 1=antihorario)
+        A1A     : out STD_LOGIC;   -- Bobina A terminal 1
+        A1B     : out STD_LOGIC;   -- Bobina A terminal 2
+        B1A     : out STD_LOGIC;   -- Bobina B terminal 1
+        B1B     : out STD_LOGIC    -- Bobina B terminal 2
+    );
+end motor_28byj48_control;
+
+architecture Behavioral of motor_28byj48_control is
+
+    signal step_counter : integer range 0 to 3 := 0;
+    signal clk_div      : integer := 0;
+    constant DIVIDER    : integer := 200000; -- Ajusta según frecuencia clk para velocidad
+
+begin
+
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            step_counter <= 0;
+            clk_div <= 0;
+        elsif rising_edge(clk) then
+            if enable = '1' then
+                -- Divisor de frecuencia para controlar la velocidad
+                if clk_div = DIVIDER then
+                    clk_div <= 0;
+
+                    -- Avanzar pasos según dirección
+                    if dir = '0' then
+                        if step_counter = 3 then
+                            step_counter <= 0;
+                        else
+                            step_counter <= step_counter + 1;
+                        end if;
+                    else
+                        if step_counter = 0 then
+                            step_counter <= 3;
+                        else
+                            step_counter <= step_counter - 1;
+                        end if;
+                    end if;
+                else
+                    clk_div <= clk_div + 1;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    -- Secuencia full step (tabla)
+    process(step_counter)
+    begin
+        case step_counter is
+            when 0 =>
+                A1A <= '1'; A1B <= '0';
+                B1A <= '1'; B1B <= '0';
+            when 1 =>
+                A1A <= '0'; A1B <= '1';
+                B1A <= '1'; B1B <= '0';
+            when 2 =>
+                A1A <= '0'; A1B <= '1';
+                B1A <= '0'; B1B <= '1';
+            when 3 =>
+                A1A <= '1'; A1B <= '0';
+                B1A <= '0'; B1B <= '1';
+            when others =>
+                A1A <= '0'; A1B <= '0';
+                B1A <= '0'; B1B <= '0';
+        end case;
+    end process;
+
+end Behavioral;

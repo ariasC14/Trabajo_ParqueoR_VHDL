@@ -1,0 +1,86 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity teclado is
+    Port(
+        clk       : in  std_logic;
+        reset     : in  std_logic;
+        filas     : in  std_logic_vector(3 downto 0);
+        columnas  : out std_logic_vector(3 downto 0);
+        seg       : out std_logic_vector(6 downto 0)
+    );
+end teclado_display;
+
+architecture Behavioral of teclado is
+
+    type state_type is (col0, col1, col2, col3);
+    signal state : state_type := col0;
+    signal tecla : std_logic_vector(2 downto 0) := (others => '0');
+    signal tecla_valid : std_logic := '0';
+
+    -- Mapa segmento ánodo común invertido
+    type segmentos_array is array(0 to 6) of std_logic_vector(6 downto 0);
+    constant display_map : segmentos_array := (
+        "1000000", -- 0
+        "1111001", -- 1
+        "0100100", -- 2
+        "0110000", -- 3
+        "0011001", -- 4
+        "0010010", -- 5
+        "0000010"  -- 6
+    );
+
+begin
+
+    columnas <=
+        "1110" when state = col0 else
+        "1101" when state = col1 else
+        "1011" when state = col2 else
+        "0111";
+
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            state <= col0;
+            tecla <= (others => '0');
+            tecla_valid <= '0';
+        elsif rising_edge(clk) then
+            case state is
+                when col0 =>
+                    if filas(0) = '0' then
+                        tecla <= "001"; tecla_valid <= '1'; -- 1
+                    elsif filas(1) = '0' then
+                        tecla <= "010"; tecla_valid <= '1'; -- 2
+                    elsif filas(2) = '0' then
+                        tecla <= "011"; tecla_valid <= '1'; -- 3
+                    elsif filas(3) = '0' then
+                        tecla <= "100"; tecla_valid <= '1'; -- 4
+                    else
+                        tecla_valid <= '0';
+                    end if;
+                    state <= col1;
+                when col1 =>
+                    if filas(0) = '0' then
+                        tecla <= "101"; tecla_valid <= '1'; -- 5
+                    else
+                        tecla_valid <= '0';
+                    end if;
+                    state <= col2;
+                when col2 =>
+                    if filas(0) = '0' then
+                        tecla <= "110"; tecla_valid <= '1'; -- 6
+                    else
+                        tecla_valid <= '0';
+                    end if;
+                    state <= col3;
+                when others =>
+                    tecla_valid <= '0';
+                    state <= col0;
+            end case;
+        end if;
+    end process;
+
+    seg <= display_map(to_integer(unsigned(tecla))) when tecla_valid = '1' else "1111111";
+
+end Behavioral;

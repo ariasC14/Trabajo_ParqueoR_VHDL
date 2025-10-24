@@ -1,0 +1,28 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity sensor_movimiento is
+    Port (
+        clk       : in  std_logic;  -- Reloj sistema (puede no usarse directamente)
+        reset     : in  std_logic;  -- Reset (opcional)
+        sensor_in : in  std_logic;  -- Entrada digital sensor Flying Fish
+        led_mov   : out std_logic   -- LEDG1, se prende si hay movimiento
+    );
+end sensor_movimiento;
+
+architecture Behavioral of sensor_movimiento is
+begin
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            led_mov <= '0';
+        elsif rising_edge(clk) then
+            if sensor_in = '1' then
+                led_mov <= '1';  -- Detecta movimiento
+            else
+                led_mov <= '0';  -- No detecta movimiento
+            end if;
+        end if;
+    end process;
+
+end Behavioral;

@@ -1,0 +1,7 @@
+
+State Machine - |teclado|state
+Name state.col3 state.col2 state.col1 state.col0 
+state.col0 0 0 0 0 
+state.col1 0 0 1 1 
+state.col2 0 1 0 1 
+state.col3 1 0 0 1 

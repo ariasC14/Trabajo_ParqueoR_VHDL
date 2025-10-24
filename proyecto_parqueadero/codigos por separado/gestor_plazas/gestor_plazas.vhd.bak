@@ -1,0 +1,75 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity gestor_plazas is
+    Port (
+        clk               : in std_logic;
+        reset             : in std_logic;
+        sensor_filtered    : in std_logic;  -- sensor movimiento filtrado
+        control_puerta_sig : in std_logic;  -- señal puerta abierta
+        btn_bot            : in std_logic;  -- liberar plaza
+        teclado_plaza      : in std_logic_vector(3 downto 0);  -- plaza para liberar
+
+        motor_start        : out std_logic;
+        motor_plaza        : out std_logic_vector(3 downto 0);
+        plazas_ocupadas_out: out std_logic_vector(5 downto 0)  -- para debug o info
+    );
+end gestor_plazas;
+
+architecture Behavioral of gestor_plazas is
+    type plaza_array is array (0 to 5) of std_logic;
+    signal plazas_ocupadas : plaza_array := (others => '0');
+    signal estado_maquina : integer range 0 to 3 := 0;
+    signal motor_start_int : std_logic := '0';
+    signal motor_plaza_int : std_logic_vector(3 downto 0) := (others => '0');
+begin
+    process(clk, reset)
+        variable i : integer;
+        variable plaza_libre : integer := -1;
+    begin
+        if reset = '1' then
+            motor_start_int <= '0';
+            motor_plaza_int <= (others => '0');
+            plazas_ocupadas <= (others => '0');
+            estado_maquina <= 0;
+        elsif rising_edge(clk) then
+            case estado_maquina is
+                when 0 =>
+                    if sensor_filtered = '0' and control_puerta_sig = '0' then
+                        plaza_libre := -1;
+                        for i in 0 to 5 loop
+                            if plazas_ocupadas(i) = '0' then
+                                plaza_libre := i;
+                                exit;
+                            end if;
+                        end loop;
+                        if plaza_libre /= -1 then
+                            motor_plaza_int <= std_logic_vector(to_unsigned(plaza_libre + 1,4));
+                            motor_start_int <= '1';
+                            estado_maquina <= 1;
+                        else
+                            motor_start_int <= '0';
+                        end if;
+                    else
+                        motor_start_int <= '0';
+                    end if;
+                when 1 =>
+                    motor_start_int <= '0';
+                    -- Aquí puedes agregar cómo saber que motor terminó para avanzar estado
+                    -- Esto puede conectarse con done_motor externamente y traer la señal dentro, o implementación propia
+                when others =>
+                    estado_maquina <= 0;
+            end case;
+
+            if btn_bot = '0' then
+                plazas_ocupadas(to_integer(unsigned(teclado_plaza)) - 1) <= '0';
+            end if;
+        end if;
+    end process;
+
+    motor_start <= motor_start_int;
+    motor_plaza <= motor_plaza_int;
+    plazas_ocupadas_out <= plazas_ocupadas(5) & plazas_ocupadas(4) & plazas_ocupadas(3) & plazas_ocupadas(2) & plazas_ocupadas(1) & plazas_ocupadas(0);
+
+end Behavioral;

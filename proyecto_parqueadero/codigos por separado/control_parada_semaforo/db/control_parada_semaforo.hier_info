@@ -1,0 +1,11 @@
+|control_parada_semaforo
+clk => estado_emergencia.CLK
+reset => estado_emergencia.ACLR
+btn_emergencia => estado_emergencia.ENA
+btn_segura => led_verde.IN1
+btn_segura => led_amarillo.DATAIN
+led_rojo <= estado_emergencia.DB_MAX_OUTPUT_PORT_TYPE
+led_amarillo <= btn_segura.DB_MAX_OUTPUT_PORT_TYPE
+led_verde <= led_verde.DB_MAX_OUTPUT_PORT_TYPE
+
+

@@ -1,0 +1,7 @@
+
+State Machine - |sensor_movimiento|estado
+Name estado.CONTANDO_CERRAR estado.ABIERTO estado.CONTANDO_ABRIR estado.CERRADO 
+estado.CERRADO 0 0 0 0 
+estado.CONTANDO_ABRIR 0 0 1 1 
+estado.ABIERTO 0 1 0 1 
+estado.CONTANDO_CERRAR 1 0 0 1 

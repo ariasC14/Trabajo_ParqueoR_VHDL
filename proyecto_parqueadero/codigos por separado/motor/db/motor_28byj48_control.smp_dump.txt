@@ -1,0 +1,12 @@
+
+State Machine - |motor_28byj48_control|Ps_state
+Name Ps_state.half4 Ps_state.half3 Ps_state.half2 Ps_state.half1 Ps_state.fourth Ps_state.third Ps_state.second Ps_state.first Ps_state.reset 
+Ps_state.reset 0 0 0 0 0 0 0 0 0 
+Ps_state.first 0 0 0 0 0 0 0 1 1 
+Ps_state.second 0 0 0 0 0 0 1 0 1 
+Ps_state.third 0 0 0 0 0 1 0 0 1 
+Ps_state.fourth 0 0 0 0 1 0 0 0 1 
+Ps_state.half1 0 0 0 1 0 0 0 0 1 
+Ps_state.half2 0 0 1 0 0 0 0 0 1 
+Ps_state.half3 0 1 0 0 0 0 0 0 1 
+Ps_state.half4 1 0 0 0 0 0 0 0 1 

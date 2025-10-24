@@ -1,0 +1,17 @@
+vendor_name = ModelSim
+source_file = 1, C:/Users/ACER/Desktop/Ing Electronica/CIRCUITIOS VHDL/proyecto_parqueadero/codigos por separado/control_parada_semaforo/control_parada_semaforo.vhd
+source_file = 1, C:/Users/ACER/Desktop/Ing Electronica/CIRCUITIOS VHDL/proyecto_parqueadero/codigos por separado/control_parada_semaforo/db/control_parada_semaforo.cbx.xml
+source_file = 1, c:/altera/13.1/quartus/libraries/vhdl/ieee/prmtvs_b.vhd
+source_file = 1, c:/altera/13.1/quartus/libraries/vhdl/ieee/prmtvs_p.vhd
+source_file = 1, c:/altera/13.1/quartus/libraries/vhdl/ieee/timing_b.vhd
+source_file = 1, c:/altera/13.1/quartus/libraries/vhdl/ieee/timing_p.vhd
+design_name = control_parada_semaforo
+instance = comp, \led_rojo~output\, led_rojo~output, control_parada_semaforo, 1
+instance = comp, \led_amarillo~output\, led_amarillo~output, control_parada_semaforo, 1
+instance = comp, \led_verde~output\, led_verde~output, control_parada_semaforo, 1
+instance = comp, \clk~input\, clk~input, control_parada_semaforo, 1
+instance = comp, \btn_emergencia~input\, btn_emergencia~input, control_parada_semaforo, 1
+instance = comp, \estado_emergencia~0\, estado_emergencia~0, control_parada_semaforo, 1
+instance = comp, \reset~input\, reset~input, control_parada_semaforo, 1
+instance = comp, \btn_segura~input\, btn_segura~input, control_parada_semaforo, 1
+instance = comp, \led_verde~0\, led_verde~0, control_parada_semaforo, 1
